@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 
+const PAYMENT_LINK = "https://buy.stripe.com/dRmdR3cPm2882DEeHIeUU05";
+
 export default function Home() {
   const [url, setUrl] = useState("");
   const [oneLiner, setOneLiner] = useState("");
@@ -20,14 +22,19 @@ export default function Home() {
       });
 
       const data = await response.json();
-      
-      if (isPaid && data.checkoutUrl) {
-        window.location.href = data.checkoutUrl;
-      } else {
-        setResult(data);
+
+      if (isPaid) {
+        window.location.href = data.checkoutUrl || PAYMENT_LINK;
+        return;
       }
+
+      setResult(data);
     } catch (error) {
       console.error(error);
+      if (isPaid) {
+        window.location.href = PAYMENT_LINK;
+        return;
+      }
       setResult({ error: "Failed to generate script" });
     } finally {
       setLoading(false);
@@ -71,13 +78,12 @@ export default function Home() {
             >
               {loading ? "PROCESSING..." : "FREE OUTLINE"}
             </button>
-            <button
-              onClick={() => handleGenerate(true)}
-              disabled={!url || loading}
-              className="flex-1 bg-green-500 text-black p-3 font-bold hover:bg-green-400 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            <a
+              href={PAYMENT_LINK}
+              className="flex-1 bg-green-500 text-black p-3 font-bold hover:bg-green-400 transition-colors text-center"
             >
-              {loading ? "PROCESSING..." : "$15 - FULL SCRIPT"}
-            </button>
+              $15 — Buy Full Script
+            </a>
           </div>
         </div>
       </div>

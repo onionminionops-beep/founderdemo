@@ -140,32 +140,42 @@ export async function POST(req: NextRequest) {
     }
 
     if (isPaid) {
+      const PAYMENT_LINK = "https://buy.stripe.com/dRmdR3cPm2882DEeHIeUU05";
+      
       if (!stripe) {
-        return NextResponse.json(
-          { error: "Stripe not configured" },
-          { status: 500 }
-        );
+        return NextResponse.json({ 
+          checkoutUrl: PAYMENT_LINK,
+          fallback: true 
+        });
       }
 
-      const session = await stripe.checkout.sessions.create({
-        line_items: [
-          {
-            price: "price_1UCQoY7pd3R2ckxOskbxSDOY",
-            quantity: 1,
+      try {
+        const session = await stripe.checkout.sessions.create({
+          line_items: [
+            {
+              price: "price_1UCQoY7pd3R2ckxOskbxSDOY",
+              quantity: 1,
+            },
+          ],
+          mode: "payment",
+          success_url: `${req.nextUrl.origin}/success?session_id={CHECKOUT_SESSION_ID}&url=${encodeURIComponent(
+            url
+          )}&oneLiner=${encodeURIComponent(oneLiner || "")}`,
+          cancel_url: req.nextUrl.origin,
+          metadata: {
+            url,
+            oneLiner: oneLiner || "",
           },
-        ],
-        mode: "payment",
-        success_url: `${req.nextUrl.origin}/success?session_id={CHECKOUT_SESSION_ID}&url=${encodeURIComponent(
-          url
-        )}&oneLiner=${encodeURIComponent(oneLiner || "")}`,
-        cancel_url: req.nextUrl.origin,
-        metadata: {
-          url,
-          oneLiner: oneLiner || "",
-        },
-      });
+        });
 
-      return NextResponse.json({ checkoutUrl: session.url });
+        return NextResponse.json({ checkoutUrl: session.url });
+      } catch (error) {
+        console.error("Stripe Checkout error, falling back to Payment Link:", error);
+        return NextResponse.json({ 
+          checkoutUrl: PAYMENT_LINK,
+          fallback: true 
+        });
+      }
     }
 
     const script = await generateScriptWithOpenAI(url, oneLiner, false);

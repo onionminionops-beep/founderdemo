@@ -41,7 +41,7 @@ function SuccessContent() {
 
   return (
     <>
-      <PurchaseTracker product="FounderDemo" />
+      <PurchaseTracker product="founderdemo" />
       <main className="min-h-screen p-8 max-w-4xl mx-auto">
       <div className="border border-green-500 p-8 mb-8">
         <h1 className="text-3xl mb-4 text-green-500">$ payment_successful</h1>

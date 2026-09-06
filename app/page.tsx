@@ -80,7 +80,7 @@ export default function Home() {
               {loading ? "PROCESSING..." : "FREE OUTLINE"}
             </button>
             <a
-              href={PAYMENT_LINK} onClick={() => posthog.capture("checkout_cta_clicked", { product: "FounderDemo", mode: "payment_link" })}
+              href={PAYMENT_LINK} onClick={() => posthog.capture("checkout_start", { product: "founderdemo", source: "payment_link_button" })}
               className="flex-1 bg-green-500 text-black p-3 font-bold hover:bg-green-400 transition-colors text-center"
             >
               $15 — Buy Full Script

@@ -13,6 +13,7 @@ if (typeof window !== "undefined" && key) {
     person_profiles: "identified_only",
     capture_pageview: true,
     capture_pageleave: true,
+    capture_exceptions: true,
   });
 }
 

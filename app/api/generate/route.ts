@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { captureServer } from "@/lib/posthog-server";
 import Stripe from "stripe";
 
 const stripe = process.env.STRIPE_SECRET_KEY
@@ -143,6 +144,7 @@ export async function POST(req: NextRequest) {
       const PAYMENT_LINK = "https://buy.stripe.com/dRmdR3cPm2882DEeHIeUU05";
       
       if (!stripe) {
+        await captureServer("anonymous", "checkout_started", { product: "FounderDemo", mode: "checkout_or_link" });
         return NextResponse.json({ 
           checkoutUrl: PAYMENT_LINK,
           fallback: true 
@@ -168,9 +170,11 @@ export async function POST(req: NextRequest) {
           },
         });
 
+        await captureServer("anonymous", "checkout_started", { product: "FounderDemo", mode: "checkout_or_link" });
         return NextResponse.json({ checkoutUrl: session.url });
       } catch (error) {
         console.error("Stripe Checkout error, falling back to Payment Link:", error);
+        await captureServer("anonymous", "checkout_started", { product: "FounderDemo", mode: "checkout_or_link" });
         return NextResponse.json({ 
           checkoutUrl: PAYMENT_LINK,
           fallback: true 
